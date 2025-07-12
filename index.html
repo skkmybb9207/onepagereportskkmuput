@@ -75,6 +75,9 @@
             border-top: 1px solid #eee; font-size: 14px; color: #777; line-height: 1.6;
         }
         .footer-info p { margin: 5px 0; }
+        .char-counter-container {
+            text-align: right; font-size: 12px; color: #777; margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -86,15 +89,41 @@
         <form id="reportForm">
             <div class="form-group"> <label for="namaProgram">1. Nama Program</label> <input type="text" id="namaProgram" placeholder="Cth: Program Kecemerlangan Akademik" required> </div>
             <div class="form-group"> <label for="unit">2. Unit</label> <select id="unit" required> <option value="" disabled selected>-- Sila Pilih Unit --</option> <option value="KURIKULUM">KURIKULUM</option> <option value="HAL EHWAL MURID">HAL EHWAL MURID</option> <option value="KOKURIKULUM">KOKURIKULUM</option> </select> </div>
-            <div style="display: flex; gap: 20px;">
-                <div class="form-group" style="flex: 1;"> <label for="tarikh">3. Tarikh</label> <input type="date" id="tarikh" required> </div>
-                <div class="form-group" style="flex: 1;"> <label for="masa">4. Masa</label> <input type="time" id="masa" required> </div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                <div class="form-group" style="flex: 1; min-width: 250px;">
+                    <label>3. Tarikh Program</label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="date" id="tarikhMula" title="Tarikh Mula (Dari)" style="flex: 1;" required>
+                        <span>-</span>
+                        <input type="date" id="tarikhHingga" title="Tarikh Akhir (Hingga)" style="flex: 1;">
+                    </div>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label for="tempohMasa">4. Tempoh Masa</label>
+                    <input type="text" id="tempohMasa" placeholder="Cth: Bilangan hari/minggu/bulan dilaksanakan" required>
+                </div>
             </div>
+
             <div class="form-group"> <label for="tempat">5. Tempat</label> <input type="text" id="tempat" placeholder="Cth: Dewan Seri Gemilang, SK Kota Masai" required> </div>
             <div class="form-group"> <label for="sasaran">6. Sasaran</label> <input type="text" id="sasaran" placeholder="Cth: Semua murid Tahun 6" required> </div>
-            <div class="form-group"> <label for="fokus">7. Fokus Perkongsian / Butiran Program</label> <textarea id="fokus" placeholder="Terangkan secara ringkas objektif dan perjalanan program." required></textarea> </div>
-            <div class="form-group"> <label for="impak">8. Impak / Dapatan / Tindakan</label> <textarea id="impak" placeholder="Nyatakan kesan program kepada sasaran dan tindakan susulan." required></textarea> </div>
-            <div class="form-group"> <label for="penilaian">9. Penilaian / Cadangan Penambahbaikan</label> <textarea id="penilaian" placeholder="Berikan penilaian keseluruhan dan cadangan untuk masa hadapan." required></textarea> </div>
+            
+            <div class="form-group">
+                <label for="fokus">7. Fokus Perkongsian / Butiran Program</label>
+                <textarea id="fokus" placeholder="Terangkan secara ringkas objektif dan perjalanan program." required maxlength="450"></textarea>
+                <div class="char-counter-container"><span id="fokus-counter">0</span> / 450</div>
+            </div>
+            <div class="form-group">
+                <label for="impak">8. Impak / Dapatan / Tindakan</label>
+                <textarea id="impak" placeholder="Nyatakan kesan program kepada sasaran dan tindakan susulan." required maxlength="450"></textarea>
+                <div class="char-counter-container"><span id="impak-counter">0</span> / 450</div>
+            </div>
+            <div class="form-group">
+                <label for="penilaian">9. Penilaian / Cadangan Penambahbaikan</label>
+                <textarea id="penilaian" placeholder="Berikan penilaian keseluruhan dan cadangan untuk masa hadapan." required maxlength="450"></textarea>
+                <div class="char-counter-container"><span id="penilaian-counter">0</span> / 450</div>
+            </div>
+
             <div class="form-group">
                 <label>10. Muat Naik 2 Keping Gambar Program</label>
                 <div class="image-upload-container">
@@ -135,6 +164,30 @@
                 }
             });
         });
+        
+        // Logik Kaunter Aksara
+        function setupCharCounter(textareaId, counterId, maxLength) {
+            const textarea = document.getElementById(textareaId);
+            const counter = document.getElementById(counterId);
+            const counterContainer = counter.parentElement;
+            
+            textarea.addEventListener('input', () => {
+                const currentLength = textarea.value.length;
+                counter.textContent = currentLength;
+                
+                if (currentLength >= maxLength) {
+                    counterContainer.style.color = 'var(--error-color)';
+                } else if (currentLength > maxLength * 0.9) {
+                    counterContainer.style.color = 'orange';
+                } else {
+                    counterContainer.style.color = '#777';
+                }
+            });
+        }
+        setupCharCounter('fokus', 'fokus-counter', 450);
+        setupCharCounter('impak', 'impak-counter', 450);
+        setupCharCounter('penilaian', 'penilaian-counter', 450);
+
 
         // URL Header
         const headerImageUrl = 'https://i.postimg.cc/YSrRzcr5/header-web-skkm-opr.png';
@@ -181,11 +234,26 @@
             document.getElementById('driveLinkContainer').style.display = 'none';
 
             try {
+                const formatDate = (dateString) => {
+                    if (!dateString) return '';
+                    const d = new Date(dateString);
+                    if (isNaN(d.getTime())) return '';
+                    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+                };
+
+                const tarikhMulaValue = document.getElementById('tarikhMula').value;
+                const tarikhHinggaValue = document.getElementById('tarikhHingga').value;
+
+                let formattedTarikh = formatDate(tarikhMulaValue);
+                if (tarikhHinggaValue) {
+                    formattedTarikh += ` - ${formatDate(tarikhHinggaValue)}`;
+                }
+
                 const formData = {
                     namaProgram: document.getElementById('namaProgram').value,
                     unit: document.getElementById('unit').value,
-                    tarikh: document.getElementById('tarikh').value,
-                    masa: document.getElementById('masa').value,
+                    tarikh: formattedTarikh,
+                    masa: document.getElementById('tempohMasa').value,
                     tempat: document.getElementById('tempat').value,
                     sasaran: document.getElementById('sasaran').value,
                     fokus: document.getElementById('fokus').value,
@@ -193,16 +261,6 @@
                     penilaian: document.getElementById('penilaian').value,
                     pelapor: document.getElementById('pelapor').value,
                 };
-                
-                if (formData.tarikh) {
-                    const d = new Date(formData.tarikh);
-                    formData.tarikh = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-                }
-                if (formData.masa) {
-                    const [h, m] = formData.masa.split(':');
-                    const hour = parseInt(h, 10);
-                    formData.masa = `${hour % 12 || 12}:${m} ${hour >= 12 ? 'PM' : 'AM'}`;
-                }
                 
                 const imagePromises = [
                     fetchImageAsBase64(headerImageUrl),
@@ -219,73 +277,59 @@
                 const pageHeight = doc.internal.pageSize.getHeight();
                 const pageWidth = doc.internal.pageSize.getWidth();
                 
-                // Layout constants
-                const margin = 15;
+                const margin = 12;
                 const contentWidth = pageWidth - margin * 2;
-                const sidebarWidth = 65;
-                const mainContentX = margin + sidebarWidth + 10;
+                const sidebarWidth = 60;
+                const mainContentX = margin + sidebarWidth + 8;
                 const mainContentWidth = pageWidth - mainContentX - margin;
-                const primaryColor = '#0056b3'; // Main brand color (for titles etc.)
                 const textColorDark = '#333333';
+                const maxImageHeight = 60;
                 
-                // **PERUBAHAN DI SINI: Menetapkan warna berdasarkan unit**
-                let sidebarColor;
-                let sidebarTextColor;
-
+                let sidebarColor, sidebarTextColor;
                 switch (formData.unit) {
-                    case 'KURIKULUM':
-                        sidebarColor = '#FFC300'; // Yellow
-                        sidebarTextColor = '#333333'; // Dark text
-                        break;
-                    case 'HAL EHWAL MURID':
-                        sidebarColor = '#DC3545'; // Red
-                        sidebarTextColor = '#FFFFFF'; // White text
-                        break;
-                    case 'KOKURIKULUM':
-                        sidebarColor = '#0056b3'; // Blue
-                        sidebarTextColor = '#FFFFFF'; // White text
-                        break;
-                    default:
-                        sidebarColor = '#6c757d'; // Grey as default
-                        sidebarTextColor = '#FFFFFF';
+                    case 'KURIKULUM': sidebarColor = '#FFC300'; sidebarTextColor = '#333333'; break;
+                    case 'HAL EHWAL MURID': sidebarColor = '#DC3545'; sidebarTextColor = '#FFFFFF'; break;
+                    case 'KOKURIKULUM': sidebarColor = '#0056b3'; sidebarTextColor = '#FFFFFF'; break;
+                    default: sidebarColor = '#6c757d'; sidebarTextColor = '#FFFFFF';
                 }
 
                 let y = margin;
 
-                // 1. Header Image
                 const headerDimensions = await getImageDimensions(headerBase64);
-                const headerAspectRatio = headerDimensions.height / headerDimensions.width;
-                const pdfHeaderHeight = contentWidth * headerAspectRatio;
+                const pdfHeaderHeight = contentWidth * (headerDimensions.height / headerDimensions.width);
                 doc.addImage(headerBase64, 'PNG', margin, y, contentWidth, pdfHeaderHeight);
-                y += pdfHeaderHeight + 8;
+                y += pdfHeaderHeight + 6;
 
-                // 2. Main Title (Headline)
                 doc.setFont('helvetica', 'bold');
-                doc.setFontSize(20);
-                doc.setTextColor(primaryColor);
+                doc.setFontSize(17);
+                doc.setTextColor('#0056b3');
                 const titleLines = doc.splitTextToSize(formData.namaProgram.toUpperCase(), contentWidth);
                 doc.text(titleLines, pageWidth / 2, y, { align: 'center' });
-                y += (titleLines.length * 8) + 10;
+                y += (titleLines.length * 6.5) + 8;
                 
                 const contentStartY = y;
                 let ySidebar = contentStartY;
                 let yMain = contentStartY;
 
-                // 3. Sidebar (Left Column)
-                doc.setFillColor(sidebarColor); // **DIUBAH**: Guna warna sidebar yang dinamik
-                doc.rect(margin, contentStartY - 5, sidebarWidth, pageHeight, 'F'); 
-                
-                doc.setTextColor(sidebarTextColor); // **DIUBAH**: Guna warna teks sidebar yang dinamik
-                doc.setFontSize(9);
-                
                 const sidebarDetails = [
-                    { label: 'UNIT', value: formData.unit },
-                    { label: 'TARIKH', value: formData.tarikh },
-                    { label: 'MASA', value: formData.masa },
-                    { label: 'TEMPAT', value: formData.tempat },
+                    { label: 'UNIT', value: formData.unit }, { label: 'TARIKH', value: formData.tarikh },
+                    { label: 'MASA', value: formData.masa }, { label: 'TEMPAT', value: formData.tempat },
                     { label: 'SASARAN', value: formData.sasaran }
                 ];
+                
+                let calculatedSidebarHeight = 0;
+                doc.setFontSize(9);
+                sidebarDetails.forEach(detail => {
+                    calculatedSidebarHeight += 5;
+                    const valueLines = doc.splitTextToSize(detail.value, sidebarWidth - 10);
+                    calculatedSidebarHeight += (valueLines.length * 4) + 6;
+                });
+                calculatedSidebarHeight += 5;
 
+                doc.setFillColor(sidebarColor);
+                doc.rect(margin, contentStartY - 5, sidebarWidth, calculatedSidebarHeight, 'F');
+                
+                doc.setTextColor(sidebarTextColor);
                 sidebarDetails.forEach(detail => {
                     doc.setFont('helvetica', 'bold');
                     doc.text(detail.label, margin + 5, ySidebar);
@@ -293,13 +337,9 @@
                     doc.setFont('helvetica', 'normal');
                     const valueLines = doc.splitTextToSize(detail.value, sidebarWidth - 10);
                     doc.text(valueLines, margin + 5, ySidebar);
-                    ySidebar += (valueLines.length * 4) + 8;
+                    ySidebar += (valueLines.length * 4) + 6;
                 });
                 
-                // 4. Main Content (Right Column)
-                doc.setTextColor(textColorDark);
-                doc.setFontSize(10);
-
                 const mainContentDetails = [
                     { label: 'FOKUS PERKONGSIAN / BUTIRAN PROGRAM', value: formData.fokus },
                     { label: 'IMPAK / DAPATAN / TINDAKAN', value: formData.impak },
@@ -307,57 +347,83 @@
                 ];
                 
                 mainContentDetails.forEach(detail => {
+                    const titleBoxHeight = 7;
+                    const titlePadding = 4;
+
+                    // Draw the colored background box for the title
+                    doc.setFillColor(sidebarColor);
+                    doc.rect(mainContentX, yMain, mainContentWidth, titleBoxHeight, 'F');
+
+                    // Draw the title text inside the box
                     doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(primaryColor);
-                    doc.text(detail.label, mainContentX, yMain);
-                    yMain += 5;
+                    doc.setFontSize(10);
+                    doc.setTextColor(sidebarTextColor);
+                    doc.text(detail.label, mainContentX + 3, yMain + titleBoxHeight / 2, { baseline: 'middle' });
                     
-                    doc.setDrawColor(primaryColor);
-                    doc.line(mainContentX, yMain, mainContentX + mainContentWidth, yMain);
-                    yMain += 4;
-                    
+                    yMain += titleBoxHeight + titlePadding;
+
+                    // Draw the content text below the box
                     doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(9.5);
                     doc.setTextColor(textColorDark);
                     const valueLines = doc.splitTextToSize(detail.value, mainContentWidth);
                     doc.text(valueLines, mainContentX, yMain);
-                    yMain += (valueLines.length * 4.5) + 10;
+                    yMain += (valueLines.length * 4.2) + 8;
                 });
                 
                 y = Math.max(ySidebar, yMain);
 
-                // 5. Image Gallery
                 if (images.length > 0) {
-                    y += 5;
+                    y += 5; 
                     doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(primaryColor);
-                    doc.text('LAMPIRAN GAMBAR', mainContentX, y);
-                    y += 8;
+                    doc.setTextColor('#0056b3');
+                    doc.setFontSize(10);
+                    doc.text('LAMPIRAN GAMBAR', margin, y);
+                    y += 6;
 
-                    const galleryWidth = mainContentWidth;
+                    const galleryWidth = contentWidth;
                     const gap = 4;
-                    const totalGaps = (images.length - 1) * gap;
-                    const imageContainerWidth = (galleryWidth - totalGaps) / images.length;
-                    let currentX = mainContentX;
+                    const numImages = images.length > 2 ? 2 : images.length;
+                    const totalGaps = (numImages - 1) * gap;
+                    const imageContainerWidth = (galleryWidth - totalGaps) / numImages;
+                    let currentX = margin;
+                    let actualMaxHeight = 0;
 
-                    images.forEach((imgData, index) => {
-                        const dim = imageDimensions[index];
-                        const imgHeight = imageContainerWidth * (dim.height / dim.width);
-                        doc.addImage(imgData, undefined, currentX, y, imageContainerWidth, imgHeight);
+                    for(let i=0; i < numImages; i++) {
+                        const imgData = images[i];
+                        const dim = imageDimensions[i];
+                        
+                        let imgHeight = imageContainerWidth * (dim.height / dim.width);
+                        let imgWidth = imageContainerWidth;
+                        
+                        if (imgHeight > maxImageHeight) {
+                            imgWidth = maxImageHeight * (dim.width / dim.height);
+                            imgHeight = maxImageHeight;
+                        }
+
+                        if (imgHeight > actualMaxHeight) {
+                            actualMaxHeight = imgHeight;
+                        }
+
+                        doc.addImage(imgData, undefined, currentX, y, imgWidth, imgHeight);
                         currentX += imageContainerWidth + gap;
-                    });
-                    
-                    const assumedImgHeight = imageContainerWidth * 0.75;
-                    y += assumedImgHeight + 10;
+                    }
+                    y += actualMaxHeight + 8;
                 }
 
-                // 6. Signature / Footer
-                const footerY = Math.max(y, pageHeight - 40);
+                let signatureY = y;
+                if (signatureY < pageHeight - 40) {
+                    signatureY = pageHeight - 40;
+                } else {
+                    signatureY += 5;
+                }
+
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(textColorDark);
-                doc.text('Disediakan oleh,', mainContentX, footerY);
-                doc.text('..........................................................', mainContentX, footerY + 15);
-                doc.text(`(${formData.pelapor})`, mainContentX, footerY + 20);
+                doc.text('Disediakan oleh,', mainContentX, signatureY);
+                doc.text('..........................................................', mainContentX, signatureY + 15);
+                doc.text(`(${formData.pelapor})`, mainContentX, signatureY + 20);
 
                 doc.save(`Laporan_${formData.namaProgram.replace(/\s+/g, '_')}.pdf`);
                 const driveLinks = {
