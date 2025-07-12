@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONE PAGE REPORT - Borang Laporan Aktiviti</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #0056b3; --secondary-color: #f4f7fc; --text-color: #333;
+            --border-color: #ddd; --success-color: #28a745; --error-color: #dc3545;
+        }
+        body {
+            font-family: 'Poppins', sans-serif; background-color: var(--secondary-color); color: var(--text-color);
+            margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+        .container {
+            width: 100%; max-width: 900px; background-color: #fff; padding: 30px;
+            border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .header-img { width: 100%; height: auto; border-radius: 8px; margin-bottom: 30px; }
+        h1 { text-align: center; color: var(--primary-color); margin-bottom: 25px; font-weight: 700; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; }
+        input[type="text"], input[type="date"], input[type="time"], select, textarea {
+            width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px;
+            font-size: 16px; font-family: 'Poppins', sans-serif; box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
+        }
+        textarea { resize: vertical; min-height: 120px; }
+        .image-upload-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px; margin-top: 10px;
+        }
+        .upload-slot {
+            border: 2px dashed var(--border-color); border-radius: 8px; padding: 15px; text-align: center;
+            position: relative; background-color: #fafafa; transition: border-color 0.3s, background-color 0.3s;
+        }
+        .upload-slot:hover { border-color: var(--primary-color); background-color: #f0f6ff; }
+        .upload-slot input[type="file"] { display: none; }
+        .upload-slot label { cursor: pointer; font-weight: 500; color: var(--primary-color); }
+        .image-preview {
+            width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-top: 10px;
+            display: none; border: 1px solid var(--border-color);
+        }
+        .button-container { text-align: center; margin-top: 30px; }
+        button, .styled-link {
+            background-color: var(--primary-color); color: #fff; padding: 15px 30px; border: none;
+            border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s; text-decoration: none; display: inline-block;
+        }
+        button:hover, .styled-link:hover { background-color: #004494; transform: translateY(-2px); }
+        .styled-link { background-color: var(--success-color); }
+        .styled-link:hover { background-color: #218838; }
+        #driveLinkContainer {
+            margin-top: 30px; padding: 20px; background-color: #e9f5ea; border: 1px solid var(--success-color);
+            border-radius: 8px; text-align: center; display: none;
+        }
+        #driveLinkContainer h3 { margin-top: 0; color: #155724; }
+        #driveLinkContainer p { margin: 0 0 15px 0; font-weight: 500; }
+        .error-box {
+            display: none; margin-top: 20px; padding: 15px; background-color: #f8d7da;
+            border: 1px solid var(--error-color); color: #721c24; border-radius: 8px; text-align: center;
+        }
+        .footer-info {
+            text-align: center; margin-top: 40px; padding-top: 20px;
+            border-top: 1px solid #eee; font-size: 14px; color: #777; line-height: 1.6;
+        }
+        .footer-info p { margin: 5px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <img src="https://i.postimg.cc/YSrRzcr5/header-web-skkm-opr.png" alt="Header Laporan" class="header-img">
+        <h1>Borang Laporan Aktiviti (One Page Report)</h1>
+
+        <form id="reportForm">
+            <div class="form-group"> <label for="namaProgram">1. Nama Program</label> <input type="text" id="namaProgram" placeholder="Cth: Program Kecemerlangan Akademik" required> </div>
+            <div class="form-group"> <label for="unit">2. Unit</label> <select id="unit" required> <option value="" disabled selected>-- Sila Pilih Unit --</option> <option value="KURIKULUM">KURIKULUM</option> <option value="HAL EHWAL MURID">HAL EHWAL MURID</option> <option value="KOKURIKULUM">KOKURIKULUM</option> </select> </div>
+            <div style="display: flex; gap: 20px;">
+                <div class="form-group" style="flex: 1;"> <label for="tarikh">3. Tarikh</label> <input type="date" id="tarikh" required> </div>
+                <div class="form-group" style="flex: 1;"> <label for="masa">4. Masa</label> <input type="time" id="masa" required> </div>
+            </div>
+            <div class="form-group"> <label for="tempat">5. Tempat</label> <input type="text" id="tempat" placeholder="Cth: Dewan Seri Gemilang, SK Kota Masai" required> </div>
+            <div class="form-group"> <label for="sasaran">6. Sasaran</label> <input type="text" id="sasaran" placeholder="Cth: Semua murid Tahun 6" required> </div>
+            <div class="form-group"> <label for="fokus">7. Fokus Perkongsian / Butiran Program</label> <textarea id="fokus" placeholder="Terangkan secara ringkas objektif dan perjalanan program." required></textarea> </div>
+            <div class="form-group"> <label for="impak">8. Impak / Dapatan / Tindakan</label> <textarea id="impak" placeholder="Nyatakan kesan program kepada sasaran dan tindakan susulan." required></textarea> </div>
+            <div class="form-group"> <label for="penilaian">9. Penilaian / Cadangan Penambahbaikan</label> <textarea id="penilaian" placeholder="Berikan penilaian keseluruhan dan cadangan untuk masa hadapan." required></textarea> </div>
+            <div class="form-group">
+                <label>10. Muat Naik 2 Keping Gambar Program</label>
+                <div class="image-upload-container">
+                    <div class="upload-slot"> <label for="gambar1">Pilih Gambar 1</label> <input type="file" id="gambar1" class="image-input" accept="image/*"> <img id="preview1" class="image-preview" alt="Pratonton 1"> </div>
+                    <div class="upload-slot"> <label for="gambar2">Pilih Gambar 2</label> <input type="file" id="gambar2" class="image-input" accept="image/*"> <img id="preview2" class="image-preview" alt="Pratonton 2"> </div>
+                </div>
+            </div>
+            <div class="form-group"> <label for="pelapor">11. Disediakan Oleh</label> <input type="text" id="pelapor" placeholder="Nama Penuh Pelapor" required> </div>
+            <div class="button-container"> <button type="button" id="generatePdfBtn">Jana Laporan PDF</button> </div>
+        </form>
+        
+        <div id="error-message" class="error-box"></div>
+        <div id="driveLinkContainer">
+            <h3>Langkah Seterusnya</h3>
+            <p><b>Langkah 1:</b> Laporan PDF telah berjaya dimuat turun ke komputer anda.<br>
+               <b>Langkah 2:</b> Sila klik butang di bawah untuk membuka folder Google Drive dan muat naik fail tersebut secara manual.</p>
+            <a href="#" id="driveLink" class="styled-link" target="_blank">Buka Folder Google Drive</a>
+        </div>
+        
+        <div class="footer-info">
+            <p>One Page Report Staf SK Kuala Muput © 2025</p>
+            <p><strong>Inovasi Digital oleh:</strong> Cikgu Dayangku Nurul Akmal Awang Mustapha</p>
+            <p><strong>Dibangunkan pada:</strong> 11 Julai 2025</p>
+            <p><strong>Sistem beroperasi selama:</strong> <span id="uptime-counter">Memuatkan...</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Pratonton gambar
+        document.querySelectorAll('.image-input').forEach((input, index) => {
+            input.addEventListener('change', function(event) {
+                const preview = document.getElementById(`preview${index + 1}`);
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        // URL Header
+        const headerImageUrl = 'https://i.postimg.cc/YSrRzcr5/header-web-skkm-opr.png';
+
+        function fetchImageAsBase64(url) {
+            return fetch(url).then(response => response.blob()).then(blob => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            }));
+        }
+
+        function readUserImage(file) {
+            return new Promise((resolve) => {
+                if (!file) return resolve(null);
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        function getImageDimensions(base64) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    resolve({ width: img.width, height: img.height });
+                };
+                img.src = base64;
+            });
+        }
+
+        document.getElementById('generatePdfBtn').addEventListener('click', async function() {
+            const form = document.getElementById('reportForm');
+            if (!form.checkValidity()) {
+                alert('Sila lengkapkan semua medan yang diperlukan.');
+                form.reportValidity();
+                return;
+            }
+
+            this.textContent = 'Menjana Laporan...';
+            this.disabled = true;
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('driveLinkContainer').style.display = 'none';
+
+            try {
+                const formData = {
+                    namaProgram: document.getElementById('namaProgram').value,
+                    unit: document.getElementById('unit').value,
+                    tarikh: document.getElementById('tarikh').value,
+                    masa: document.getElementById('masa').value,
+                    tempat: document.getElementById('tempat').value,
+                    sasaran: document.getElementById('sasaran').value,
+                    fokus: document.getElementById('fokus').value,
+                    impak: document.getElementById('impak').value,
+                    penilaian: document.getElementById('penilaian').value,
+                    pelapor: document.getElementById('pelapor').value,
+                };
+                
+                if (formData.tarikh) {
+                    const d = new Date(formData.tarikh);
+                    formData.tarikh = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+                }
+                if (formData.masa) {
+                    const [h, m] = formData.masa.split(':');
+                    const hour = parseInt(h, 10);
+                    formData.masa = `${hour % 12 || 12}:${m} ${hour >= 12 ? 'PM' : 'AM'}`;
+                }
+                
+                const imagePromises = [
+                    fetchImageAsBase64(headerImageUrl),
+                    ...Array.from({ length: 2 }, (_, i) => readUserImage(document.getElementById(`gambar${i + 1}`).files[0]))
+                ];
+                const [headerBase64, ...userImagesData] = await Promise.all(imagePromises);
+                
+                const images = userImagesData.filter(Boolean);
+                const imageDimensionPromises = images.map(imgData => getImageDimensions(imgData));
+                const imageDimensions = await Promise.all(imageDimensionPromises);
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const pageWidth = doc.internal.pageSize.getWidth();
+                
+                // Layout constants
+                const margin = 15;
+                const contentWidth = pageWidth - margin * 2;
+                const sidebarWidth = 65;
+                const mainContentX = margin + sidebarWidth + 10;
+                const mainContentWidth = pageWidth - mainContentX - margin;
+                const primaryColor = '#0056b3'; // Main brand color (for titles etc.)
+                const textColorDark = '#333333';
+                
+                // **PERUBAHAN DI SINI: Menetapkan warna berdasarkan unit**
+                let sidebarColor;
+                let sidebarTextColor;
+
+                switch (formData.unit) {
+                    case 'KURIKULUM':
+                        sidebarColor = '#FFC300'; // Yellow
+                        sidebarTextColor = '#333333'; // Dark text
+                        break;
+                    case 'HAL EHWAL MURID':
+                        sidebarColor = '#DC3545'; // Red
+                        sidebarTextColor = '#FFFFFF'; // White text
+                        break;
+                    case 'KOKURIKULUM':
+                        sidebarColor = '#0056b3'; // Blue
+                        sidebarTextColor = '#FFFFFF'; // White text
+                        break;
+                    default:
+                        sidebarColor = '#6c757d'; // Grey as default
+                        sidebarTextColor = '#FFFFFF';
+                }
+
+                let y = margin;
+
+                // 1. Header Image
+                const headerDimensions = await getImageDimensions(headerBase64);
+                const headerAspectRatio = headerDimensions.height / headerDimensions.width;
+                const pdfHeaderHeight = contentWidth * headerAspectRatio;
+                doc.addImage(headerBase64, 'PNG', margin, y, contentWidth, pdfHeaderHeight);
+                y += pdfHeaderHeight + 8;
+
+                // 2. Main Title (Headline)
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(20);
+                doc.setTextColor(primaryColor);
+                const titleLines = doc.splitTextToSize(formData.namaProgram.toUpperCase(), contentWidth);
+                doc.text(titleLines, pageWidth / 2, y, { align: 'center' });
+                y += (titleLines.length * 8) + 10;
+                
+                const contentStartY = y;
+                let ySidebar = contentStartY;
+                let yMain = contentStartY;
+
+                // 3. Sidebar (Left Column)
+                doc.setFillColor(sidebarColor); // **DIUBAH**: Guna warna sidebar yang dinamik
+                doc.rect(margin, contentStartY - 5, sidebarWidth, pageHeight, 'F'); 
+                
+                doc.setTextColor(sidebarTextColor); // **DIUBAH**: Guna warna teks sidebar yang dinamik
+                doc.setFontSize(9);
+                
+                const sidebarDetails = [
+                    { label: 'UNIT', value: formData.unit },
+                    { label: 'TARIKH', value: formData.tarikh },
+                    { label: 'MASA', value: formData.masa },
+                    { label: 'TEMPAT', value: formData.tempat },
+                    { label: 'SASARAN', value: formData.sasaran }
+                ];
+
+                sidebarDetails.forEach(detail => {
+                    doc.setFont('helvetica', 'bold');
+                    doc.text(detail.label, margin + 5, ySidebar);
+                    ySidebar += 5;
+                    doc.setFont('helvetica', 'normal');
+                    const valueLines = doc.splitTextToSize(detail.value, sidebarWidth - 10);
+                    doc.text(valueLines, margin + 5, ySidebar);
+                    ySidebar += (valueLines.length * 4) + 8;
+                });
+                
+                // 4. Main Content (Right Column)
+                doc.setTextColor(textColorDark);
+                doc.setFontSize(10);
+
+                const mainContentDetails = [
+                    { label: 'FOKUS PERKONGSIAN / BUTIRAN PROGRAM', value: formData.fokus },
+                    { label: 'IMPAK / DAPATAN / TINDAKAN', value: formData.impak },
+                    { label: 'PENILAIAN / CADANGAN PENAMBAHBAIKAN', value: formData.penilaian }
+                ];
+                
+                mainContentDetails.forEach(detail => {
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(primaryColor);
+                    doc.text(detail.label, mainContentX, yMain);
+                    yMain += 5;
+                    
+                    doc.setDrawColor(primaryColor);
+                    doc.line(mainContentX, yMain, mainContentX + mainContentWidth, yMain);
+                    yMain += 4;
+                    
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(textColorDark);
+                    const valueLines = doc.splitTextToSize(detail.value, mainContentWidth);
+                    doc.text(valueLines, mainContentX, yMain);
+                    yMain += (valueLines.length * 4.5) + 10;
+                });
+                
+                y = Math.max(ySidebar, yMain);
+
+                // 5. Image Gallery
+                if (images.length > 0) {
+                    y += 5;
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(primaryColor);
+                    doc.text('LAMPIRAN GAMBAR', mainContentX, y);
+                    y += 8;
+
+                    const galleryWidth = mainContentWidth;
+                    const gap = 4;
+                    const totalGaps = (images.length - 1) * gap;
+                    const imageContainerWidth = (galleryWidth - totalGaps) / images.length;
+                    let currentX = mainContentX;
+
+                    images.forEach((imgData, index) => {
+                        const dim = imageDimensions[index];
+                        const imgHeight = imageContainerWidth * (dim.height / dim.width);
+                        doc.addImage(imgData, undefined, currentX, y, imageContainerWidth, imgHeight);
+                        currentX += imageContainerWidth + gap;
+                    });
+                    
+                    const assumedImgHeight = imageContainerWidth * 0.75;
+                    y += assumedImgHeight + 10;
+                }
+
+                // 6. Signature / Footer
+                const footerY = Math.max(y, pageHeight - 40);
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(textColorDark);
+                doc.text('Disediakan oleh,', mainContentX, footerY);
+                doc.text('..........................................................', mainContentX, footerY + 15);
+                doc.text(`(${formData.pelapor})`, mainContentX, footerY + 20);
+
+                doc.save(`Laporan_${formData.namaProgram.replace(/\s+/g, '_')}.pdf`);
+                const driveLinks = {
+                    'KURIKULUM': 'https://drive.google.com/drive/folders/1Q08u06wbeiIbaq6m12OfiFqt7wf5x53u?usp=drive_link',
+                    'HAL EHWAL MURID': 'https://drive.google.com/drive/folders/1uYeQaL4ejjCJyyskXJgTnH8cQpyKeCYL?usp=drive_link',
+                    'KOKURIKULUM': 'https://drive.google.com/drive/folders/1RwNCEPNoHdaT7pHtjcE_qatgZ0mT2aOS?usp=drive_link'
+                };
+                document.getElementById('driveLink').href = driveLinks[formData.unit];
+                document.getElementById('driveLinkContainer').style.display = 'block';
+
+            } catch (error) {
+                console.error("Ralat semasa menjana PDF:", error);
+                const errorBox = document.getElementById('error-message');
+                errorBox.textContent = 'Gagal menjana PDF. Sila semak sambungan internet dan pastikan fail gambar yang dimuat naik adalah sah.';
+                errorBox.style.display = 'block';
+            } finally {
+                this.textContent = 'Jana Laporan PDF';
+                this.disabled = false;
+            }
+        });
+
+        // Skrip untuk kaunter masa operasi
+        const uptimeCounter = document.getElementById('uptime-counter');
+        const startDate = new Date(2025, 6, 11);
+
+        function updateUptime() {
+            const now = new Date();
+            const diff = now - startDate;
+
+            if (diff < 0) {
+                uptimeCounter.textContent = 'Sistem akan dilancarkan pada 11 Julai 2025.';
+                return;
+            }
+
+            let seconds = Math.floor(diff / 1000);
+            let minutes = Math.floor(seconds / 60);
+            let hours = Math.floor(minutes / 60);
+            let days = Math.floor(hours / 24);
+
+            hours %= 24;
+            minutes %= 60;
+            seconds %= 60;
+
+            uptimeCounter.textContent = `${days} hari, ${hours} jam, ${minutes} minit, ${seconds} saat`;
+        }
+
+        updateUptime();
+        setInterval(updateUptime, 1000);
+    </script>
+
+</body>
+</html>
