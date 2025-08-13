@@ -14,6 +14,7 @@
         :root {
             --primary-color: #0056b3; --secondary-color: #f4f7fc; --text-color: #333;
             --border-color: #ddd; --success-color: #28a745; --error-color: #dc3545;
+            --archive-color: #6c757d; --archive-hover-color: #5a6268;
         }
         body {
             font-family: 'Poppins', sans-serif; background-color: var(--secondary-color); color: var(--text-color);
@@ -51,7 +52,10 @@
             width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-top: 10px;
             display: none; border: 1px solid var(--border-color);
         }
-        .button-container { text-align: center; margin-top: 30px; }
+        .button-container {
+            text-align: center; margin-top: 30px; display: flex; justify-content: center;
+            gap: 15px; flex-wrap: wrap; align-items: center;
+        }
         button, .styled-link {
             background-color: var(--primary-color); color: #fff; padding: 15px 30px; border: none;
             border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer;
@@ -60,6 +64,8 @@
         button:hover, .styled-link:hover { background-color: #004494; transform: translateY(-2px); }
         .styled-link { background-color: var(--success-color); }
         .styled-link:hover { background-color: #218838; }
+        .archive-link { background-color: var(--archive-color); }
+        .archive-link:hover { background-color: var(--archive-hover-color); }
         #driveLinkContainer {
             margin-top: 30px; padding: 20px; background-color: #e9f5ea; border: 1px solid var(--success-color);
             border-radius: 8px; text-align: center; display: none;
@@ -132,7 +138,11 @@
                 </div>
             </div>
             <div class="form-group"> <label for="pelapor">11. Disediakan Oleh</label> <input type="text" id="pelapor" placeholder="Nama Penuh Pelapor" required> </div>
-            <div class="button-container"> <button type="button" id="generatePdfBtn">Jana Laporan PDF</button> </div>
+            
+            <div class="button-container">
+                <button type="button" id="generatePdfBtn">Jana Laporan PDF</button>
+                <a href="https://drive.google.com/drive/folders/1oWDM7SThpP_rIJXFICk5T0qyYOG4BUGs?usp=drive_link" target="_blank" class="styled-link archive-link">Buka Arkib Laporan</a>
+            </div>
         </form>
         
         <div id="error-message" class="error-box"></div>
