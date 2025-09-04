@@ -433,9 +433,7 @@
                 doc.setFontSize(10);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(textColorDark);
-                doc.text('Disediakan oleh,', mainContentX, signatureY);
-                doc.text('..........................................................', mainContentX, signatureY + 15);
-                doc.text(`(${formData.pelapor})`, mainContentX, signatureY + 20);
+                doc.text(`Disediakan oleh: ${formData.pelapor}`, mainContentX, signatureY);
 
                 doc.save(`Laporan_${formData.namaProgram.replace(/\s+/g, '_')}.pdf`);
                 const driveLinks = {
