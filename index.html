@@ -37,21 +37,43 @@
             outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.2);
         }
         textarea { resize: vertical; min-height: 120px; }
+        
+        /* Grid Layout Selector Style */
+        .grid-selector {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px; margin-bottom: 15px;
+        }
+        .grid-card {
+            border: 2px solid var(--border-color); border-radius: 8px; padding: 10px;
+            cursor: pointer; background: #fafafa; transition: all 0.2s; font-size: 13px;
+        }
+        .grid-card:hover { border-color: var(--primary-color); background: #f0f6ff; }
+        .grid-card.active {
+            border-color: var(--primary-color); background: #e8f2ff; font-weight: 600; color: var(--primary-color);
+        }
+        .grid-card span { display: block; font-size: 11px; color: #666; font-weight: normal; margin-top: 2px; }
+
+        /* 4 Images Upload Container */
         .image-upload-container {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px; margin-top: 10px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px; margin-top: 10px;
         }
         .upload-slot {
-            border: 2px dashed var(--border-color); border-radius: 8px; padding: 15px; text-align: center;
+            border: 2px dashed var(--border-color); border-radius: 8px; padding: 12px; text-align: center;
             position: relative; background-color: #fafafa; transition: border-color 0.3s, background-color 0.3s;
         }
         .upload-slot:hover { border-color: var(--primary-color); background-color: #f0f6ff; }
         .upload-slot input[type="file"] { display: none; }
-        .upload-slot label { cursor: pointer; font-weight: 500; color: var(--primary-color); }
+        .upload-slot label { cursor: pointer; font-weight: 600; color: var(--primary-color); font-size: 14px; }
         .image-preview {
-            width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-top: 10px;
+            width: 100%; height: 110px; object-fit: cover; border-radius: 6px; margin-top: 8px;
             display: none; border: 1px solid var(--border-color);
         }
+        .caption-input {
+            width: 100%; padding: 6px 8px; font-size: 12px; border: 1px solid #ddd;
+            border-radius: 4px; margin-top: 8px; box-sizing: border-box;
+        }
+
         .button-container {
             text-align: center; margin-top: 30px; display: flex; justify-content: center;
             gap: 15px; flex-wrap: wrap; align-items: center;
@@ -89,12 +111,26 @@
 <body>
 
     <div class="container">
-        <img src="https://i.postimg.cc/YSrRzcr5/header-web-skkm-opr.png" alt="Header Laporan" class="header-img">
+        <img src="https://i.postimg.cc/3NdHQrD3/new-header-web-skkm-opr.png" alt="Header Laporan" class="header-img">
         <h1>Borang Laporan Aktiviti (One Page Report)</h1>
 
         <form id="reportForm">
-            <div class="form-group"> <label for="namaProgram">1. Nama Program</label> <input type="text" id="namaProgram" placeholder="Contoh: Program Kecemerlangan Akademik" required> </div>
-            <div class="form-group"> <label for="unit">2. Unit</label> <select id="unit" required> <option value="" disabled selected>-- Sila Pilih Unit --</option> <option value="KURIKULUM">KURIKULUM</option> <option value="HAL EHWAL MURID">HAL EHWAL MURID</option> <option value="KOKURIKULUM">KOKURIKULUM</option> <option value="PERSATUAN IBU BAPA DAN GURU">PERSATUAN IBU BAPA DAN GURU</option> <option value="JARINGAN DAN JALINAN">JARINGAN DAN JALINAN</option> </select> </div>
+            <div class="form-group">
+                <label for="namaProgram">1. Nama Program</label>
+                <input type="text" id="namaProgram" placeholder="Contoh: Program Kecemerlangan Akademik" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="unit">2. Unit</label>
+                <select id="unit" required>
+                    <option value="" disabled selected>-- Sila Pilih Unit --</option>
+                    <option value="KURIKULUM">KURIKULUM</option>
+                    <option value="HAL EHWAL MURID">HAL EHWAL MURID</option>
+                    <option value="KOKURIKULUM">KOKURIKULUM</option>
+                    <option value="PERSATUAN IBU BAPA DAN GURU">PERSATUAN IBU BAPA DAN GURU</option>
+                    <option value="JARINGAN DAN JALINAN">JARINGAN DAN JALINAN</option>
+                </select>
+            </div>
             
             <div style="display: flex; flex-wrap: wrap; gap: 20px;">
                 <div class="form-group" style="flex: 1; min-width: 250px;">
@@ -107,37 +143,98 @@
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 200px;">
                     <label for="tempohMasa">4. Tempoh Masa</label>
-                    <input type="text" id="tempohMasa" placeholder="Contoh: Bilangan hari/minggu/bulan dilaksanakan" required>
+                    <input type="text" id="tempohMasa" placeholder="Contoh: 8:00 Pagi - 12:30 Tengah Hari" required>
                 </div>
             </div>
 
-            <div class="form-group"> <label for="tempat">5. Tempat</label> <input type="text" id="tempat" placeholder="Contoh: Ruai SK Kuala Muput. Tatau" required> </div>
-            <div class="form-group"> <label for="sasaran">6. Sasaran</label> <input type="text" id="sasaran" placeholder="Contoh: Semua murid Tahun 6" required> </div>
+            <div class="form-group">
+                <label for="tempat">5. Tempat</label>
+                <input type="text" id="tempat" placeholder="Contoh: Ruai SK Kuala Muput, Tatau" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="sasaran">6. Sasaran</label>
+                <input type="text" id="sasaran" placeholder="Contoh: Semua murid Tahun 6" required>
+            </div>
             
             <div class="form-group">
                 <label for="fokus">7. Fokus Perkongsian / Butiran Program</label>
                 <textarea id="fokus" placeholder="Terangkan secara ringkas objektif dan perjalanan program." required maxlength="450"></textarea>
                 <div class="char-counter-container"><span id="fokus-counter">0</span> / 450</div>
             </div>
+            
             <div class="form-group">
                 <label for="impak">8. Impak / Dapatan / Tindakan</label>
                 <textarea id="impak" placeholder="Nyatakan kesan program kepada sasaran dan tindakan susulan." required maxlength="450"></textarea>
                 <div class="char-counter-container"><span id="impak-counter">0</span> / 450</div>
             </div>
+            
             <div class="form-group">
                 <label for="penilaian">9. Penilaian / Cadangan Penambahbaikan</label>
                 <textarea id="penilaian" placeholder="Berikan penilaian keseluruhan dan cadangan untuk masa hadapan." required maxlength="450"></textarea>
                 <div class="char-counter-container"><span id="penilaian-counter">0</span> / 450</div>
             </div>
 
+            <!-- BAHARU: 4 GAMBAR & PILIHAN GRID A4 -->
             <div class="form-group">
-                <label>10. Muat Naik 2 Keping Gambar Program</label>
+                <label>10. Muat Naik Gambar Program (Maksimum 4 Gambar)</label>
+                
+                <!-- Pilihan Susunan Grid di A4 -->
+                <div style="margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #444;">
+                    Pilih Susunan Grid di A4:
+                </div>
+                <div class="grid-selector">
+                    <div class="grid-card active" onclick="setGrid('grid-2x2', this)">
+                        🔲 Grid 2 × 2 Seimbang
+                        <span>2 atas, 2 bawah (Standard)</span>
+                    </div>
+                    <div class="grid-card" onclick="setGrid('featured-3', this)">
+                        🖼️ 1 Utama + 3 Sampingan
+                        <span>1 besar di kiri, 3 kecil kanan</span>
+                    </div>
+                    <div class="grid-card" onclick="setGrid('strip-4', this)">
+                        📏 4 Gambar Sebaris
+                        <span>4 lajur bersebelahan</span>
+                    </div>
+                    <div class="grid-card" onclick="setGrid('grid-2x2-caption', this)">
+                        🏷️ 2 × 2 + Kapsyen
+                        <span>Grid dengan teks keterangan</span>
+                    </div>
+                </div>
+
+                <!-- 4 Upload Slots -->
                 <div class="image-upload-container">
-                    <div class="upload-slot"> <label for="gambar1">Pilih Gambar 1</label> <input type="file" id="gambar1" class="image-input" accept="image/*"> <img id="preview1" class="image-preview" alt="Pratonton 1"> </div>
-                    <div class="upload-slot"> <label for="gambar2">Pilih Gambar 2</label> <input type="file" id="gambar2" class="image-input" accept="image/*"> <img id="preview2" class="image-preview" alt="Pratonton 2"> </div>
+                    <div class="upload-slot">
+                        <label for="gambar1">Pilih Gambar 1</label>
+                        <input type="file" id="gambar1" class="image-input" accept="image/*">
+                        <img id="preview1" class="image-preview" alt="Pratonton 1">
+                        <input type="text" id="kapsyen1" class="caption-input" placeholder="Kapsyen 1 (Pilihan)">
+                    </div>
+                    <div class="upload-slot">
+                        <label for="gambar2">Pilih Gambar 2</label>
+                        <input type="file" id="gambar2" class="image-input" accept="image/*">
+                        <img id="preview2" class="image-preview" alt="Pratonton 2">
+                        <input type="text" id="kapsyen2" class="caption-input" placeholder="Kapsyen 2 (Pilihan)">
+                    </div>
+                    <div class="upload-slot">
+                        <label for="gambar3">Pilih Gambar 3</label>
+                        <input type="file" id="gambar3" class="image-input" accept="image/*">
+                        <img id="preview3" class="image-preview" alt="Pratonton 3">
+                        <input type="text" id="kapsyen3" class="caption-input" placeholder="Kapsyen 3 (Pilihan)">
+                    </div>
+                    <div class="upload-slot">
+                        <label for="gambar4">Pilih Gambar 4</label>
+                        <input type="file" id="gambar4" class="image-input" accept="image/*">
+                        <img id="preview4" class="image-preview" alt="Pratonton 4">
+                        <input type="text" id="kapsyen4" class="caption-input" placeholder="Kapsyen 4 (Pilihan)">
+                    </div>
                 </div>
             </div>
-            <div class="form-group"> <label for="pelapor">11. Disediakan Oleh</label> <input type="text" id="pelapor" placeholder="Nama Penuh Pelapor" required> </div>
+
+            <div class="form-group">
+                <label for="pelapor">11. Disediakan Oleh</label>
+                <input type="text" id="pelapor" placeholder="Nama Penuh Pelapor" required>
+            </div>
             
             <div class="button-container">
                 <button type="button" id="generatePdfBtn">Jana Laporan PDF</button>
@@ -162,14 +259,25 @@
     </div>
 
     <script>
-        // Pratonton gambar
+        let currentGrid = 'grid-2x2';
+
+        function setGrid(gridType, element) {
+            currentGrid = gridType;
+            document.querySelectorAll('.grid-card').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        // Pratonton 4 Gambar
         document.querySelectorAll('.image-input').forEach((input, index) => {
             input.addEventListener('change', function(event) {
                 const preview = document.getElementById(`preview${index + 1}`);
                 const file = event.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+                    reader.onload = e => {
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
                     reader.readAsDataURL(file);
                 }
             });
@@ -198,9 +306,8 @@
         setupCharCounter('impak', 'impak-counter', 450);
         setupCharCounter('penilaian', 'penilaian-counter', 450);
 
-
-        // URL Header
-        const headerImageUrl = 'https://i.postimg.cc/YSrRzcr5/header-web-skkm-opr.png';
+        // URL Header Baharu (1200x200 px)
+        const headerImageUrl = 'https://i.postimg.cc/3NdHQrD3/new-header-web-skkm-opr.png';
 
         function fetchImageAsBase64(url) {
             return fetch(url).then(response => response.blob()).then(blob => new Promise((resolve, reject) => {
@@ -272,28 +379,37 @@
                     pelapor: document.getElementById('pelapor').value,
                 };
                 
+                // Baca sehingga 4 gambar
                 const imagePromises = [
                     fetchImageAsBase64(headerImageUrl),
-                    ...Array.from({ length: 2 }, (_, i) => readUserImage(document.getElementById(`gambar${i + 1}`).files[0]))
+                    ...Array.from({ length: 4 }, (_, i) => readUserImage(document.getElementById(`gambar${i + 1}`).files[0]))
                 ];
                 const [headerBase64, ...userImagesData] = await Promise.all(imagePromises);
                 
-                const images = userImagesData.filter(Boolean);
-                const imageDimensionPromises = images.map(imgData => getImageDimensions(imgData));
-                const imageDimensions = await Promise.all(imageDimensionPromises);
+                // Ambil gambar yang wujud berserta kapsyen
+                const imagesWithCaptions = [];
+                userImagesData.forEach((imgData, idx) => {
+                    if (imgData) {
+                        const cap = document.getElementById(`kapsyen${idx + 1}`).value;
+                        imagesWithCaptions.push({ data: imgData, caption: cap });
+                    }
+                });
+
+                const imageDimensions = await Promise.all(
+                    imagesWithCaptions.map(item => getImageDimensions(item.data))
+                );
 
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF('p', 'mm', 'a4');
-                const pageHeight = doc.internal.pageSize.getHeight();
-                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight(); // 297
+                const pageWidth = doc.internal.pageSize.getWidth(); // 210
                 
                 const margin = 12;
-                const contentWidth = pageWidth - margin * 2;
-                const sidebarWidth = 60;
-                const mainContentX = margin + sidebarWidth + 8;
+                const contentWidth = pageWidth - margin * 2; // 186
+                const sidebarWidth = 58;
+                const mainContentX = margin + sidebarWidth + 7;
                 const mainContentWidth = pageWidth - mainContentX - margin;
                 const textColorDark = '#333333';
-                const maxImageHeight = 60;
                 
                 let sidebarColor, sidebarTextColor;
                 switch (formData.unit) {
@@ -307,51 +423,57 @@
 
                 let y = margin;
 
+                // 1. Header Banner
                 const headerDimensions = await getImageDimensions(headerBase64);
                 const pdfHeaderHeight = contentWidth * (headerDimensions.height / headerDimensions.width);
                 doc.addImage(headerBase64, 'PNG', margin, y, contentWidth, pdfHeaderHeight);
-                y += pdfHeaderHeight + 6;
+                y += pdfHeaderHeight + 5;
 
+                // 2. Tajuk Program
                 doc.setFont('helvetica', 'bold');
-                doc.setFontSize(17);
+                doc.setFontSize(15);
                 doc.setTextColor('#0056b3');
                 const titleLines = doc.splitTextToSize(formData.namaProgram.toUpperCase(), contentWidth);
                 doc.text(titleLines, pageWidth / 2, y, { align: 'center' });
-                y += (titleLines.length * 6.5) + 8;
+                y += (titleLines.length * 6) + 6;
                 
                 const contentStartY = y;
                 let ySidebar = contentStartY;
                 let yMain = contentStartY;
 
+                // 3. Maklumat Sidebar
                 const sidebarDetails = [
-                    { label: 'UNIT', value: formData.unit }, { label: 'TARIKH', value: formData.tarikh },
-                    { label: 'MASA', value: formData.masa }, { label: 'TEMPAT', value: formData.tempat },
+                    { label: 'UNIT', value: formData.unit },
+                    { label: 'TARIKH', value: formData.tarikh },
+                    { label: 'MASA', value: formData.masa },
+                    { label: 'TEMPAT', value: formData.tempat },
                     { label: 'SASARAN', value: formData.sasaran }
                 ];
                 
                 let calculatedSidebarHeight = 0;
-                doc.setFontSize(9);
+                doc.setFontSize(8.5);
                 sidebarDetails.forEach(detail => {
-                    calculatedSidebarHeight += 5;
-                    const valueLines = doc.splitTextToSize(detail.value, sidebarWidth - 10);
-                    calculatedSidebarHeight += (valueLines.length * 4) + 6;
+                    calculatedSidebarHeight += 4.5;
+                    const valueLines = doc.splitTextToSize(detail.value, sidebarWidth - 8);
+                    calculatedSidebarHeight += (valueLines.length * 3.8) + 5;
                 });
-                calculatedSidebarHeight += 5;
+                calculatedSidebarHeight += 4;
 
                 doc.setFillColor(sidebarColor);
-                doc.rect(margin, contentStartY - 5, sidebarWidth, calculatedSidebarHeight, 'F');
+                doc.rect(margin, contentStartY - 3, sidebarWidth, calculatedSidebarHeight, 'F');
                 
                 doc.setTextColor(sidebarTextColor);
                 sidebarDetails.forEach(detail => {
                     doc.setFont('helvetica', 'bold');
-                    doc.text(detail.label, margin + 5, ySidebar);
-                    ySidebar += 5;
+                    doc.text(detail.label, margin + 4, ySidebar);
+                    ySidebar += 4.5;
                     doc.setFont('helvetica', 'normal');
-                    const valueLines = doc.splitTextToSize(detail.value, sidebarWidth - 10);
-                    doc.text(valueLines, margin + 5, ySidebar);
-                    ySidebar += (valueLines.length * 4) + 6;
+                    const valueLines = doc.splitTextToSize(detail.value, sidebarWidth - 8);
+                    doc.text(valueLines, margin + 4, ySidebar);
+                    ySidebar += (valueLines.length * 3.8) + 5;
                 });
                 
+                // 4. Kandungan Utama (Fokus, Impak, Penilaian)
                 const mainContentDetails = [
                     { label: 'FOKUS PERKONGSIAN / BUTIRAN PROGRAM', value: formData.fokus },
                     { label: 'IMPAK / DAPATAN / TINDAKAN', value: formData.impak },
@@ -359,89 +481,167 @@
                 ];
                 
                 mainContentDetails.forEach(detail => {
-                    const titleBoxHeight = 7;
-                    const titlePadding = 4;
+                    const titleBoxHeight = 6.5;
+                    const titlePadding = 3.5;
 
-                    // Draw the colored background box for the title
                     doc.setFillColor(sidebarColor);
                     doc.rect(mainContentX, yMain, mainContentWidth, titleBoxHeight, 'F');
 
-                    // Draw the title text inside the box
                     doc.setFont('helvetica', 'bold');
-                    doc.setFontSize(10);
+                    doc.setFontSize(9);
                     doc.setTextColor(sidebarTextColor);
-                    doc.text(detail.label, mainContentX + 3, yMain + titleBoxHeight / 2, { baseline: 'middle' });
+                    doc.text(detail.label, mainContentX + 3, yMain + titleBoxHeight / 2 + 0.5, { baseline: 'middle' });
                     
                     yMain += titleBoxHeight + titlePadding;
 
-                    // Draw the content text below the box
                     doc.setFont('helvetica', 'normal');
-                    doc.setFontSize(9.5);
+                    doc.setFontSize(9);
                     doc.setTextColor(textColorDark);
                     const valueLines = doc.splitTextToSize(detail.value, mainContentWidth);
                     doc.text(valueLines, mainContentX, yMain);
-                    yMain += (valueLines.length * 4.2) + 8;
+                    yMain += (valueLines.length * 3.8) + 6;
                 });
                 
                 y = Math.max(ySidebar, yMain);
 
-                if (images.length > 0) {
-                    y += 5; 
+                // 5. LAMPIRAN 4 GAMBAR SESUAI PILIHAN GRID
+                if (imagesWithCaptions.length > 0) {
+                    y += 4;
                     doc.setFont('helvetica', 'bold');
                     doc.setTextColor('#0056b3');
-                    doc.setFontSize(10);
-                    doc.text('LAMPIRAN GAMBAR', margin, y);
-                    y += 6;
+                    doc.setFontSize(9.5);
+                    doc.text(`LAMPIRAN GAMBAR (${imagesWithCaptions.length} KEPING)`, margin, y);
+                    y += 5;
 
-                    const galleryWidth = contentWidth;
-                    const gap = 4;
-                    const numImages = images.length > 2 ? 2 : images.length;
-                    const totalGaps = (numImages - 1) * gap;
-                    const imageContainerWidth = (galleryWidth - totalGaps) / numImages;
-                    let currentX = margin;
-                    let actualMaxHeight = 0;
+                    const count = imagesWithCaptions.length;
+                    const galleryW = contentWidth;
+                    const gap = 3.5;
+                    const bottomLimit = pageHeight - 25;
+                    const availableH = Math.max(45, bottomLimit - y);
 
-                    for(let i=0; i < numImages; i++) {
-                        const imgData = images[i];
-                        const dim = imageDimensions[i];
-                        
-                        let imgHeight = imageContainerWidth * (dim.height / dim.width);
-                        let imgWidth = imageContainerWidth;
-                        
-                        if (imgHeight > maxImageHeight) {
-                            imgWidth = maxImageHeight * (dim.width / dim.height);
-                            imgHeight = maxImageHeight;
+                    // PILIHAN A: GRID 2x2 SEIMBANG (atau 2x2 + Kapsyen)
+                    if (currentGrid === 'grid-2x2' || currentGrid === 'grid-2x2-caption' || count <= 2) {
+                        const colW = (galleryW - gap) / 2;
+                        const rowH = Math.min(36, (availableH - gap) / 2);
+
+                        for(let i=0; i < count; i++) {
+                            const col = i % 2;
+                            const row = Math.floor(i / 2);
+                            const posX = margin + col * (colW + gap);
+                            const posY = y + row * (rowH + gap);
+                            const dim = imageDimensions[i];
+                            const ratio = dim.width / dim.height;
+
+                            let drawW = colW;
+                            let drawH = colW / ratio;
+                            if (drawH > rowH) {
+                                drawH = rowH;
+                                drawW = rowH * ratio;
+                            }
+                            const offX = posX + (colW - drawW) / 2;
+                            const offY = posY + (rowH - drawH) / 2;
+
+                            doc.setDrawColor('#E2E8F0');
+                            doc.rect(posX, posY, colW, rowH);
+                            doc.addImage(imagesWithCaptions[i].data, 'JPEG', offX, offY, drawW, drawH);
+
+                            if (currentGrid === 'grid-2x2-caption' && imagesWithCaptions[i].caption) {
+                                doc.setFont('helvetica', 'normal');
+                                doc.setFontSize(7);
+                                doc.setTextColor('#555555');
+                                doc.text(doc.splitTextToSize(imagesWithCaptions[i].caption, colW - 2), posX + 2, posY + rowH - 1.5);
+                            }
                         }
 
-                        if (imgHeight > actualMaxHeight) {
-                            actualMaxHeight = imgHeight;
-                        }
-
-                        doc.addImage(imgData, undefined, currentX, y, imgWidth, imgHeight);
-                        currentX += imageContainerWidth + gap;
+                        const numRows = Math.ceil(count / 2);
+                        y += numRows * rowH + (numRows - 1) * gap + 5;
                     }
-                    y += actualMaxHeight + 8;
+                    // PILIHAN B: 1 UTAMA (HERO) + 3 SAMPINGAN
+                    else if (currentGrid === 'featured-3' && count >= 2) {
+                        const leftW = galleryW * 0.58;
+                        const rightW = galleryW - leftW - gap;
+                        const totalBoxH = Math.min(availableH - 5, 66);
+
+                        // Foto Utama di Kiri
+                        const dim0 = imageDimensions[0];
+                        const ratio0 = dim0.width / dim0.height;
+                        let drawW0 = leftW;
+                        let drawH0 = leftW / ratio0;
+                        if (drawH0 > totalBoxH) {
+                            drawH0 = totalBoxH;
+                            drawW0 = totalBoxH * ratio0;
+                        }
+                        doc.setDrawColor('#E2E8F0');
+                        doc.rect(margin, y, leftW, totalBoxH);
+                        doc.addImage(imagesWithCaptions[0].data, 'JPEG', margin + (leftW - drawW0) / 2, y + (totalBoxH - drawH0) / 2, drawW0, drawH0);
+
+                        // 3 Foto Kecil di Kanan
+                        const rightCount = count - 1;
+                        const thumbH = (totalBoxH - (rightCount - 1) * gap) / rightCount;
+                        const rightX = margin + leftW + gap;
+
+                        for(let j=1; j < count; j++) {
+                            const thumbY = y + (j - 1) * (thumbH + gap);
+                            const dimJ = imageDimensions[j];
+                            const ratioJ = dimJ.width / dimJ.height;
+                            let drawWJ = rightW;
+                            let drawHJ = rightW / ratioJ;
+                            if (drawHJ > thumbH) {
+                                drawHJ = thumbH;
+                                drawWJ = thumbH * ratioJ;
+                            }
+                            doc.setDrawColor('#E2E8F0');
+                            doc.rect(rightX, thumbY, rightW, thumbH);
+                            doc.addImage(imagesWithCaptions[j].data, 'JPEG', rightX + (rightW - drawWJ) / 2, thumbY + (thumbH - drawHJ) / 2, drawWJ, drawHJ);
+                        }
+
+                        y += totalBoxH + 5;
+                    }
+                    // PILIHAN C: 4 GAMBAR SEBARIS
+                    else {
+                        const colW = (galleryW - (count - 1) * gap) / count;
+                        const maxH = Math.min(46, availableH - 5);
+                        let actualH = 0;
+
+                        for(let k=0; k < count; k++) {
+                            const posX = margin + k * (colW + gap);
+                            const dimK = imageDimensions[k];
+                            let drawW = colW;
+                            let drawH = colW * (dimK.height / dimK.width);
+                            if (drawH > maxH) {
+                                drawW = maxH * (dimK.width / dimK.height);
+                                drawH = maxH;
+                            }
+                            if (drawH > actualH) actualH = drawH;
+
+                            doc.setDrawColor('#E2E8F0');
+                            doc.rect(posX, y, colW, maxH);
+                            doc.addImage(imagesWithCaptions[k].data, 'JPEG', posX + (colW - drawW) / 2, y + (maxH - drawH) / 2, drawW, drawH);
+                        }
+                        y += actualH + 5;
+                    }
                 }
 
-                let signatureY = y;
-                if (signatureY < pageHeight - 40) {
-                    signatureY = pageHeight - 40;
-                } else {
-                    signatureY += 5;
+                // 6. Tandatangan / Disediakan Oleh
+                let signatureY = y + 3;
+                if (signatureY < pageHeight - 22) {
+                    signatureY = pageHeight - 22;
                 }
 
-                doc.setFontSize(10);
+                doc.setFontSize(9.5);
                 doc.setFont('helvetica', 'normal');
                 doc.setTextColor(textColorDark);
                 doc.text(`Disediakan oleh: ${formData.pelapor}`, mainContentX, signatureY);
 
+                // Muat turun PDF
                 doc.save(`Laporan_${formData.namaProgram.replace(/\s+/g, '_')}.pdf`);
+                
                 const driveLinks = {
                     'KURIKULUM': 'https://drive.google.com/drive/folders/1Q08u06wbeiIbaq6m12OfiFqt7wf5x53u?usp=drive_link',
                     'HAL EHWAL MURID': 'https://drive.google.com/drive/folders/1uYeQaL4ejjCJyyskXJgTnH8cQpyKeCYL?usp=drive_link',
                     'KOKURIKULUM': 'https://drive.google.com/drive/folders/1RwNCEPNoHdaT7pHtjcE_qatgZ0mT2aOS?usp=drive_link',
-                    'PERSATUAN IBU BAPA DAN GURU': 'https://drive.google.com/drive/folders/16eB35RT-QLgB73-R9HRJgdZzcXEsQ19I?usp=drive_link', // Gantikan dengan pautan Google Drive sebenar untuk PIBG
-                    'JARINGAN DAN JALINAN': 'https://drive.google.com/drive/folders/1v98FEv9rTkQDDmN1kA7u2bhhXyhpHo7T?usp=drive_link' // Gantikan dengan pautan Google Drive sebenar untuk J&J
+                    'PERSATUAN IBU BAPA DAN GURU': 'https://drive.google.com/drive/folders/16eB35RT-QLgB73-R9HRJgdZzcXEsQ19I?usp=drive_link',
+                    'JARINGAN DAN JALINAN': 'https://drive.google.com/drive/folders/1v98FEv9rTkQDDmN1kA7u2bhhXyhpHo7T?usp=drive_link'
                 };
                 document.getElementById('driveLink').href = driveLinks[formData.unit] || '#';
                 document.getElementById('driveLinkContainer').style.display = 'block';
@@ -449,7 +649,7 @@
             } catch (error) {
                 console.error("Ralat semasa menjana PDF:", error);
                 const errorBox = document.getElementById('error-message');
-                errorBox.textContent = 'Gagal menjana PDF. Sila semak sambungan internet dan pastikan fail gambar yang dimuat naik adalah sah.';
+                errorBox.textContent = 'Gagal menjana PDF. Sila pastikan fail gambar yang dimuat naik adalah sah.';
                 errorBox.style.display = 'block';
             } finally {
                 this.textContent = 'Jana Laporan PDF';
@@ -457,7 +657,7 @@
             }
         });
 
-        // Skrip untuk kaunter masa operasi
+        // Kaunter Uptime bermula 11 Julai 2025
         const uptimeCounter = document.getElementById('uptime-counter');
         const startDate = new Date(2025, 6, 11);
 
