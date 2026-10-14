@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONE PAGE REPORT - Borang Laporan Aktiviti</title>
+    <title>ONE PAGE REPORT - Borang Laporan Aktiviti SK Kuala Muput</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -175,7 +175,7 @@
                 <div class="char-counter-container"><span id="penilaian-counter">0</span> / 450</div>
             </div>
 
-            <!-- BAHARU: 4 GAMBAR & PILIHAN GRID A4 -->
+            <!-- 10. MUAT NAIK 4 GAMBAR & PILIHAN GRID A4 -->
             <div class="form-group">
                 <label>10. Muat Naik Gambar Program (Maksimum 4 Gambar)</label>
                 
@@ -337,6 +337,44 @@
             });
         }
 
+        // Fungsi Memuatkan Fon Poppins Sebenar ke dalam jsPDF
+        async function ensurePoppinsFont(doc) {
+            try {
+                const [regRes, boldRes] = await Promise.all([
+                    fetch('https://cdn.jsdelivr.net/fontsource/fonts/poppins@latest/latin-400-normal.ttf'),
+                    fetch('https://cdn.jsdelivr.net/fontsource/fonts/poppins@latest/latin-700-normal.ttf')
+                ]);
+
+                if (regRes.ok && boldRes.ok) {
+                    const [regBlob, boldBlob] = await Promise.all([regRes.blob(), boldRes.blob()]);
+
+                    const [regB64, boldB64] = await Promise.all([
+                        new Promise(res => {
+                            const fr = new FileReader();
+                            fr.onloadend = () => res(fr.result.split(',')[1]);
+                            fr.readAsDataURL(regBlob);
+                        }),
+                        new Promise(res => {
+                            const fr = new FileReader();
+                            fr.onloadend = () => res(fr.result.split(',')[1]);
+                            fr.readAsDataURL(boldBlob);
+                        })
+                    ]);
+
+                    doc.addFileToVFS('Poppins-Regular.ttf', regB64);
+                    doc.addFont('Poppins-Regular.ttf', 'Poppins', 'normal');
+
+                    doc.addFileToVFS('Poppins-Bold.ttf', boldB64);
+                    doc.addFont('Poppins-Bold.ttf', 'Poppins', 'bold');
+
+                    return 'Poppins';
+                }
+            } catch (e) {
+                console.warn('Gagal memuat turun Poppins, menggunakan helvetica:', e);
+            }
+            return 'helvetica';
+        }
+
         document.getElementById('generatePdfBtn').addEventListener('click', async function() {
             const form = document.getElementById('reportForm');
             if (!form.checkValidity()) {
@@ -404,6 +442,9 @@
                 const pageHeight = doc.internal.pageSize.getHeight(); // 297
                 const pageWidth = doc.internal.pageSize.getWidth(); // 210
                 
+                // Memuatkan fon Poppins ke dalam jsPDF
+                const fontName = await ensurePoppinsFont(doc);
+
                 const margin = 12;
                 const contentWidth = pageWidth - margin * 2; // 186
                 const sidebarWidth = 58;
@@ -429,8 +470,8 @@
                 doc.addImage(headerBase64, 'PNG', margin, y, contentWidth, pdfHeaderHeight);
                 y += pdfHeaderHeight + 5;
 
-                // 2. Tajuk Program
-                doc.setFont('helvetica', 'bold');
+                // 2. Tajuk Program (Fon Poppins Bold)
+                doc.setFont(fontName, 'bold');
                 doc.setFontSize(15);
                 doc.setTextColor('#0056b3');
                 const titleLines = doc.splitTextToSize(formData.namaProgram.toUpperCase(), contentWidth);
@@ -441,7 +482,7 @@
                 let ySidebar = contentStartY;
                 let yMain = contentStartY;
 
-                // 3. Maklumat Sidebar
+                // 3. Maklumat Sidebar (Fon Poppins)
                 const sidebarDetails = [
                     { label: 'UNIT', value: formData.unit },
                     { label: 'TARIKH', value: formData.tarikh },
@@ -464,16 +505,16 @@
                 
                 doc.setTextColor(sidebarTextColor);
                 sidebarDetails.forEach(detail => {
-                    doc.setFont('helvetica', 'bold');
+                    doc.setFont(fontName, 'bold');
                     doc.text(detail.label, margin + 4, ySidebar);
                     ySidebar += 4.5;
-                    doc.setFont('helvetica', 'normal');
+                    doc.setFont(fontName, 'normal');
                     const valueLines = doc.splitTextToSize(detail.value, sidebarWidth - 8);
                     doc.text(valueLines, margin + 4, ySidebar);
                     ySidebar += (valueLines.length * 3.8) + 5;
                 });
                 
-                // 4. Kandungan Utama (Fokus, Impak, Penilaian)
+                // 4. Kandungan Utama (Fokus, Impak, Penilaian - Fon Poppins)
                 const mainContentDetails = [
                     { label: 'FOKUS PERKONGSIAN / BUTIRAN PROGRAM', value: formData.fokus },
                     { label: 'IMPAK / DAPATAN / TINDAKAN', value: formData.impak },
@@ -487,14 +528,14 @@
                     doc.setFillColor(sidebarColor);
                     doc.rect(mainContentX, yMain, mainContentWidth, titleBoxHeight, 'F');
 
-                    doc.setFont('helvetica', 'bold');
+                    doc.setFont(fontName, 'bold');
                     doc.setFontSize(9);
                     doc.setTextColor(sidebarTextColor);
                     doc.text(detail.label, mainContentX + 3, yMain + titleBoxHeight / 2 + 0.5, { baseline: 'middle' });
                     
                     yMain += titleBoxHeight + titlePadding;
 
-                    doc.setFont('helvetica', 'normal');
+                    doc.setFont(fontName, 'normal');
                     doc.setFontSize(9);
                     doc.setTextColor(textColorDark);
                     const valueLines = doc.splitTextToSize(detail.value, mainContentWidth);
@@ -504,19 +545,14 @@
                 
                 y = Math.max(ySidebar, yMain);
 
-                // 5. LAMPIRAN 4 GAMBAR SESUAI PILIHAN GRID
+                // 5. LAMPIRAN 4 GAMBAR (LABEL DIBUANG & TIADA BORDER GAMBAR)
                 if (imagesWithCaptions.length > 0) {
-                    y += 4;
-                    doc.setFont('helvetica', 'bold');
-                    doc.setTextColor('#0056b3');
-                    doc.setFontSize(9.5);
-                    doc.text(`LAMPIRAN GAMBAR (${imagesWithCaptions.length} KEPING)`, margin, y);
-                    y += 5;
+                    y += 5; // Ruang pemisah bersih tanpa sebarang label bertulis
 
                     const count = imagesWithCaptions.length;
                     const galleryW = contentWidth;
                     const gap = 3.5;
-                    const bottomLimit = pageHeight - 25;
+                    const bottomLimit = pageHeight - 24;
                     const availableH = Math.max(45, bottomLimit - y);
 
                     // PILIHAN A: GRID 2x2 SEIMBANG (atau 2x2 + Kapsyen)
@@ -541,12 +577,11 @@
                             const offX = posX + (colW - drawW) / 2;
                             const offY = posY + (rowH - drawH) / 2;
 
-                            doc.setDrawColor('#E2E8F0');
-                            doc.rect(posX, posY, colW, rowH);
+                            // Tanpa border / bingkai garis kotak
                             doc.addImage(imagesWithCaptions[i].data, 'JPEG', offX, offY, drawW, drawH);
 
                             if (currentGrid === 'grid-2x2-caption' && imagesWithCaptions[i].caption) {
-                                doc.setFont('helvetica', 'normal');
+                                doc.setFont(fontName, 'normal');
                                 doc.setFontSize(7);
                                 doc.setTextColor('#555555');
                                 doc.text(doc.splitTextToSize(imagesWithCaptions[i].caption, colW - 2), posX + 2, posY + rowH - 1.5);
@@ -562,7 +597,7 @@
                         const rightW = galleryW - leftW - gap;
                         const totalBoxH = Math.min(availableH - 5, 66);
 
-                        // Foto Utama di Kiri
+                        // Foto Utama di Kiri (Tanpa border)
                         const dim0 = imageDimensions[0];
                         const ratio0 = dim0.width / dim0.height;
                         let drawW0 = leftW;
@@ -571,11 +606,9 @@
                             drawH0 = totalBoxH;
                             drawW0 = totalBoxH * ratio0;
                         }
-                        doc.setDrawColor('#E2E8F0');
-                        doc.rect(margin, y, leftW, totalBoxH);
                         doc.addImage(imagesWithCaptions[0].data, 'JPEG', margin + (leftW - drawW0) / 2, y + (totalBoxH - drawH0) / 2, drawW0, drawH0);
 
-                        // 3 Foto Kecil di Kanan
+                        // 3 Foto Kecil di Kanan (Tanpa border)
                         const rightCount = count - 1;
                         const thumbH = (totalBoxH - (rightCount - 1) * gap) / rightCount;
                         const rightX = margin + leftW + gap;
@@ -590,8 +623,6 @@
                                 drawHJ = thumbH;
                                 drawWJ = thumbH * ratioJ;
                             }
-                            doc.setDrawColor('#E2E8F0');
-                            doc.rect(rightX, thumbY, rightW, thumbH);
                             doc.addImage(imagesWithCaptions[j].data, 'JPEG', rightX + (rightW - drawWJ) / 2, thumbY + (thumbH - drawHJ) / 2, drawWJ, drawHJ);
                         }
 
@@ -614,22 +645,21 @@
                             }
                             if (drawH > actualH) actualH = drawH;
 
-                            doc.setDrawColor('#E2E8F0');
-                            doc.rect(posX, y, colW, maxH);
+                            // Tanpa border
                             doc.addImage(imagesWithCaptions[k].data, 'JPEG', posX + (colW - drawW) / 2, y + (maxH - drawH) / 2, drawW, drawH);
                         }
                         y += actualH + 5;
                     }
                 }
 
-                // 6. Tandatangan / Disediakan Oleh
+                // 6. Tandatangan / Disediakan Oleh (Fon Poppins)
                 let signatureY = y + 3;
                 if (signatureY < pageHeight - 22) {
                     signatureY = pageHeight - 22;
                 }
 
+                doc.setFont(fontName, 'normal');
                 doc.setFontSize(9.5);
-                doc.setFont('helvetica', 'normal');
                 doc.setTextColor(textColorDark);
                 doc.text(`Disediakan oleh: ${formData.pelapor}`, mainContentX, signatureY);
 
